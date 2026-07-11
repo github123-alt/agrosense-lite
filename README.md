@@ -64,8 +64,5 @@ This is a deliberately narrow slice of a larger AgroSense Nepal vision (which al
 
 ## Demo Video
 
-*(Link to be added — max 3 minutes)*
+https://youtube.com/shorts/JASPG2yTH10?feature=share
 
-## License / Notes
-
-*(Add if relevant — e.g., dataset sources, attribution)*
