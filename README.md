@@ -24,13 +24,10 @@ This is a deliberately narrow slice of a larger AgroSense Nepal vision (which al
 
 ## Technical Approach
 
-*(To be filled in as the build progresses — outline below)*
-
 - **Core orchestration:** IBM Bob coordinates the pipeline from image intake → classification → advisory generation → response formatting
 - **Classification:** [model/approach — e.g., vision model or IBM Bob-integrated tool for crop disease detection]
 - **Advisory generation:** [how plain-language output is generated — e.g., structured knowledge base + IBM Bob reasoning]
 - **Interface:** [e.g., simple web form / CLI / chatbot-style input for the demo]
-- **Additional IBM tools used:** [watsonx / Granite / LangFlow / Docling — if applicable]
 
 ## Architecture
 
@@ -46,8 +43,6 @@ This is a deliberately narrow slice of a larger AgroSense Nepal vision (which al
 [Plain-language response to farmer]
 ```
 
-*(Replace with an actual diagram once the pipeline is built)*
-
 ## Current Status
 
 - [ ] IBM SkillsBuild module completed
@@ -60,7 +55,7 @@ This is a deliberately narrow slice of a larger AgroSense Nepal vision (which al
 
 ## Team
 
-- Prayash Phuyal — [role/contributions]
+- Prayash Phuyal 
 
 ## Demo Video
 
