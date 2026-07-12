@@ -31,8 +31,9 @@ This is a deliberately narrow slice of a larger AgroSense Nepal vision (which al
 | Component | What it does |
 |---|---|
 | **IBM Bob Skill** (`diagnose-crop`) | Orchestrates the full pipeline — takes an image path, calls the classifier, and presents results in plain language |
+| **IBM Granite** (`granite.py`) | `ibm-granite/granite-3.3-2b-instruct` via Hugging Face — generates dynamic, contextual advisory text grounded on the disease knowledge base |
 | **Classifier** (`classify.py`) | MobileNetV2 fine-tuned on PlantVillage (38 classes), served locally, returns top-3 predictions with confidence scores |
-| **Advisory engine** (`advisory.py`) | Structured knowledge base mapping disease classes to plain-language condition, severity, actionable advice, and Nepal-localised seasonal notes |
+| **Advisory engine** (`advisory.py`) | Structured knowledge base mapping disease classes to condition, severity, Nepal-localised notes, and Granite-enhanced advice |
 | **Output** | Human-readable CLI output or structured `--json` mode for Bob integration |
 
 ## Architecture
@@ -70,10 +71,13 @@ I have a photo of my tomato plant at /photos/leaf.jpg — what disease does it h
 # Install dependencies
 pip install -r requirements.txt
 
-# Run on an image
+# Run on an image (Granite-enhanced advice, default)
 python classify.py test_leaf.jpg
 
-# Structured JSON output (for integration)
+# Skip Granite — use static advice only (faster, offline)
+python classify.py test_leaf.jpg --no-granite
+
+# Structured JSON output (for Bob integration)
 python classify.py test_leaf.jpg --json
 ```
 
@@ -85,8 +89,12 @@ Predicted:  Tomato___Late_blight
 Confidence: 51.19%
 Condition:  Late Blight
 Severity:   Critical
-Advice:     Dark, water-soaked spots that spread quickly in wet weather.
-            Remove infected plants right away to protect the rest of your field.
+Advice [granite]: Act immediately — remove and destroy all infected plants to
+                  prevent the disease from spreading to healthy ones. During
+                  Nepal's monsoon season (July–September), inspect your field
+                  every few days and contact your local Krishi Gyan Kendra.
+Local tip:  High risk in Nepal from July to September. Contact your local
+            Krishi Gyan Kendra immediately.
 
 Note: Confidence is low — consider taking another photo in better lighting.
       Consult a local agricultural officer before acting.

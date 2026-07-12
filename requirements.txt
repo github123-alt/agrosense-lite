@@ -2,3 +2,5 @@ torch
 torchvision
 Pillow
 huggingface_hub
+transformers
+accelerate

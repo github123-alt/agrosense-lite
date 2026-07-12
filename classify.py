@@ -5,7 +5,7 @@ import torch.nn as nn
 from torchvision import models, transforms
 from huggingface_hub import hf_hub_download
 from PIL import Image, UnidentifiedImageError
-from advisory import get_advisory
+from advisory import get_advisory, get_advisory_with_granite
 
 __all__ = ["classify_leaf"]
 
@@ -108,15 +108,19 @@ def classify_leaf(image_path):
 if __name__ == "__main__":
     args = sys.argv[1:]
     if not args or args[0].startswith("-"):
-        print("Usage: python classify.py <image_path> [--json]")
+        print("Usage: python classify.py <image_path> [--json] [--no-granite]")
         sys.exit(1)
 
     image_path = args[0]
     use_json = "--json" in args
+    use_granite = "--no-granite" not in args
 
     results = classify_leaf(image_path)
     top = results[0]
-    advisory = get_advisory(top["disease"])
+    advisory = (
+        get_advisory_with_granite(top["disease"]) if use_granite
+        else get_advisory(top["disease"])
+    )
     low_confidence = top["confidence"] < 0.70
     runner_up = results[1] if top["confidence"] < 0.75 and len(results) > 1 else None
 
@@ -130,12 +134,15 @@ if __name__ == "__main__":
             output["runner_up"] = runner_up
         print(json.dumps(output, indent=2))
     else:
+        advice_src = advisory.get("advice_source", "static")
         print(f"Image:      {image_path}")
         print(f"Predicted:  {top['disease']}")
         print(f"Confidence: {top['confidence']:.2%}")
         print(f"Condition:  {advisory['condition']}")
         print(f"Severity:   {advisory['severity']}")
-        print(f"Advice:     {advisory['advice']}")
+        print(f"Advice [{advice_src}]: {advisory['advice']}")
+        if "local_note" in advisory:
+            print(f"Local tip:  {advisory['local_note']}")
 
         if low_confidence:
             print(
