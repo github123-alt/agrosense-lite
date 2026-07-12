@@ -4,60 +4,114 @@
 
 ## Problem Statement
 
-Smallholder farmers in Nepal — and across much of the developing world — often lack timely, affordable access to expert agronomic guidance. A farmer noticing unusual spots on a crop leaf typically has no fast way to know whether it's a treatable fungal infection, a pest issue, or a nutrient deficiency, and by the time expert advice is available (if at all), yield loss has often already occurred. This gap costs smallholders income and food security, and it's exactly the kind of "future of work" problem where an intelligent system can meaningfully augment — not replace — human expertise (local agricultural officers, extension workers).
+Smallholder farmers in Nepal — and across much of the developing world — often lack timely, affordable access to expert agronomic guidance. A farmer noticing unusual spots on a crop leaf typically has no fast way to know whether it's a treatable fungal infection, a pest issue, or a nutrient deficiency. By the time expert advice is available (if at all), yield loss has often already occurred.
+
+This gap costs smallholders income and food security. It's exactly the kind of "future of work" problem where an intelligent system can meaningfully **augment — not replace** — human expertise like local agricultural officers and extension workers.
 
 ## What This Project Does
 
-AgroSense Lite is a focused proof-of-concept: a farmer submits a photo of a crop leaf, and an IBM Bob–orchestrated pipeline:
-1. Classifies the likely disease/condition from the image
-2. Retrieves a plain-language, locally relevant advisory (what it is, what to do next, urgency level)
-3. Returns the result in a simple, low-bandwidth-friendly format
+AgroSense Lite is a focused proof-of-concept. A farmer submits a photo of a crop leaf, and an IBM Bob–orchestrated pipeline:
+
+1. **Classifies** the likely disease or condition from the image (38 classes, PlantVillage dataset)
+2. **Retrieves** a plain-language advisory — what the condition is, how urgent it is, and what to do next
+3. **Localises** the advice — high-risk crops include Nepal-specific seasonal notes and local institution references (e.g. Krishi Gyan Kendra)
+4. **Flags uncertainty** — if the model's confidence is low, the farmer is told to seek a second opinion before acting
 
 This is a deliberately narrow slice of a larger AgroSense Nepal vision (which also includes weather-linked advisories and market price intelligence) — scoped to be fully built, tested, and demoed within the challenge timeline.
 
 ## Why It Matters
 
 - **Economic impact:** Faster, correct diagnosis reduces crop loss and unnecessary pesticide spending for smallholder farmers.
-- **Accessibility:** Designed for low-literacy, low-connectivity contexts — image in, plain advisory out.
-- **Future of work fit:** Demonstrates how an AI-orchestrated system can extend the reach of scarce human expertise (agricultural extension officers) rather than replace it, letting one expert effectively support many more farmers.
-- **Explainability:** The system surfaces *why* it reached a conclusion (visible symptoms matched), not just a black-box label, so farmers and extension workers can trust and verify it.
+- **Accessibility:** Designed for low-literacy, low-connectivity contexts — image in, plain advisory out, no internet required after setup.
+- **Future of work fit:** Demonstrates how an AI-orchestrated system can extend the reach of scarce human expertise, letting one agricultural officer effectively support many more farmers.
+- **Responsible AI:** The system reports confidence scores and explicitly flags low-certainty results, so farmers and extension workers can decide when to act and when to verify.
 
 ## Technical Approach
 
-- **Core orchestration:** IBM Bob coordinates the pipeline from image intake → classification → advisory generation → response formatting
-- **Classification:** [model/approach — e.g., vision model or IBM Bob-integrated tool for crop disease detection]
-- **Advisory generation:** [how plain-language output is generated — e.g., structured knowledge base + IBM Bob reasoning]
-- **Interface:** [e.g., simple web form / CLI / chatbot-style input for the demo]
+| Component | What it does |
+|---|---|
+| **IBM Bob Skill** (`diagnose-crop`) | Orchestrates the full pipeline — takes an image path, calls the classifier, and presents results in plain language |
+| **Classifier** (`classify.py`) | MobileNetV2 fine-tuned on PlantVillage (38 classes), served locally, returns top-3 predictions with confidence scores |
+| **Advisory engine** (`advisory.py`) | Structured knowledge base mapping disease classes to plain-language condition, severity, actionable advice, and Nepal-localised seasonal notes |
+| **Output** | Human-readable CLI output or structured `--json` mode for Bob integration |
 
 ## Architecture
 
 ```
-[Farmer uploads photo]
-        ↓
-[IBM Bob orchestration]
-        ↓
-[Disease/condition classification]
-        ↓
-[Advisory lookup / generation]
-        ↓
-[Plain-language response to farmer]
+Farmer shares leaf photo
+        │
+        ▼
+IBM Bob (diagnose-crop skill)
+        │
+        ▼
+classify.py  ──►  MobileNetV2 model (Hugging Face)
+        │
+        ▼
+advisory.py  ──►  Disease advisory + local note
+        │
+        ▼
+Plain-language result to farmer
+(Condition / Severity / What to do / Local tip)
 ```
+
+## Usage
+
+### Via IBM Bob (recommended)
+
+Open a conversation with Bob and share a leaf image path. The `diagnose-crop` skill activates automatically:
+
+```
+I have a photo of my tomato plant at /photos/leaf.jpg — what disease does it have?
+```
+
+### Via CLI
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run on an image
+python classify.py test_leaf.jpg
+
+# Structured JSON output (for integration)
+python classify.py test_leaf.jpg --json
+```
+
+### Example output
+
+```
+Image:      test_diseased.jpg
+Predicted:  Tomato___Late_blight
+Confidence: 51.19%
+Condition:  Late Blight
+Severity:   Critical
+Advice:     Dark, water-soaked spots that spread quickly in wet weather.
+            Remove infected plants right away to protect the rest of your field.
+
+Note: Confidence is low — consider taking another photo in better lighting.
+      Consult a local agricultural officer before acting.
+```
+
+## Supported Crops
+
+Apple · Blueberry · Cherry · Corn · Grape · Orange · Peach · Pepper · Potato · Raspberry · Soybean · Squash · Strawberry · Tomato
+
+38 disease and healthy classes in total, covering the most common conditions in the PlantVillage dataset.
 
 ## Current Status
 
-- [ ] IBM SkillsBuild module completed
-- [ ] IBM Bob access set up
-- [ ] Classification component working
-- [ ] Advisory generation working
-- [ ] End-to-end pipeline tested
-- [ ] Demo video recorded
-- [ ] Final README polished
+- [x] IBM SkillsBuild module completed
+- [x] IBM Bob access set up
+- [x] Classification component working
+- [x] Advisory generation working
+- [x] End-to-end pipeline tested
+- [x] Demo video recorded
+- [x] Final README polished
 
 ## Team
 
-- Prayash Phuyal 
+Prayash Phuyal
 
 ## Demo Video
 
-https://youtube.com/shorts/JASPG2yTH10?feature=share
-
+[Watch on YouTube](https://youtube.com/shorts/JASPG2yTH10?feature=share)

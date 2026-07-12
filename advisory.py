@@ -1,3 +1,5 @@
+__all__ = ["get_advisory", "ADVISORY_LOOKUP"]
+
 ADVISORY_LOOKUP = {
     # --- Apple ---
     "Apple___Apple_scab": {
@@ -44,17 +46,20 @@ ADVISORY_LOOKUP = {
     "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot": {
         "condition": "Gray Leaf Spot",
         "severity": "Moderate",
-        "advice": "Rectangular gray-brown lesions on leaves. Rotate crops and avoid planting corn in the same field back-to-back. Remove crop debris after harvest."
+        "advice": "Rectangular gray-brown lesions on leaves. Rotate crops and avoid planting corn in the same field back-to-back. Remove crop debris after harvest.",
+        "local_note": "Maize is a staple in Nepal's hilly regions. Rotate with legumes (lentil, soybean) to break the disease cycle."
     },
     "Corn_(maize)___Common_rust_": {
         "condition": "Common Rust",
         "severity": "Moderate",
-        "advice": "Reddish-brown raised spots (pustules) on leaves. Usually not severe unless infection is heavy and early. Resistant seed varieties help prevent this next season."
+        "advice": "Reddish-brown raised spots (pustules) on leaves. Usually not severe unless infection is heavy and early. Resistant seed varieties help prevent this next season.",
+        "local_note": "Common in Nepal's mid-hills during the kharif (summer) season. Ask your local seed supplier for rust-resistant varieties suited to your altitude."
     },
     "Corn_(maize)___Northern_Leaf_Blight": {
         "condition": "Northern Leaf Blight",
         "severity": "High",
-        "advice": "Long, gray-green, cigar-shaped lesions on leaves. Can significantly reduce yield if untreated. Rotate crops and consider resistant varieties next planting."
+        "advice": "Long, gray-green, cigar-shaped lesions on leaves. Can significantly reduce yield if untreated. Rotate crops and consider resistant varieties next planting.",
+        "local_note": "Particularly damaging in Nepal's high-rainfall hill areas. Favour open-pollinated varieties like Rampur Composite which show some tolerance."
     },
     "Corn_(maize)___healthy": {
         "condition": "Healthy",
@@ -70,7 +75,7 @@ ADVISORY_LOOKUP = {
     },
     "Grape___Esca_(Black_Measles)": {
         "condition": "Esca (Black Measles)",
-        "severity": "High",
+        "severity": "Critical",
         "advice": "Striped/tiger-like discoloration on leaves, dark spots on fruit. No cure once established — remove and destroy severely infected vines to protect the rest."
     },
     "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": {
@@ -87,7 +92,7 @@ ADVISORY_LOOKUP = {
     # --- Orange ---
     "Orange___Haunglongbing_(Citrus_greening)": {
         "condition": "Citrus Greening (Huanglongbing)",
-        "severity": "Severe",
+        "severity": "Critical",
         "advice": "Yellowing leaves in a blotchy pattern, bitter and misshapen fruit. No cure exists — remove and destroy infected trees to protect nearby healthy ones, and control psyllid insects that spread it."
     },
 
@@ -119,12 +124,14 @@ ADVISORY_LOOKUP = {
     "Potato___Early_blight": {
         "condition": "Early Blight",
         "severity": "Moderate",
-        "advice": "Brown spots with rings, often on older leaves first. Remove affected leaves. Avoid overhead watering. Rotate crops next season."
+        "advice": "Brown spots with rings, often on older leaves first. Remove affected leaves. Avoid overhead watering. Rotate crops next season.",
+        "local_note": "In Nepal's mid-hills, Early Blight is common in autumn. Remove lower leaves before the monsoon ends to slow spread."
     },
     "Potato___Late_blight": {
         "condition": "Late Blight",
-        "severity": "Severe",
-        "advice": "Fast-spreading disease that can destroy a whole field quickly. Remove and destroy infected plants immediately. This is the disease behind historic famines — act fast and consider contacting a local agriculture officer."
+        "severity": "Critical",
+        "advice": "Fast-spreading disease that can destroy a whole field quickly. Remove and destroy infected plants immediately. This is the disease behind historic famines — act fast and consider contacting a local agriculture officer.",
+        "local_note": "In Nepal, Late Blight peaks during the June–September monsoon. Inspect your crop every 3–4 days during heavy rainfall periods and contact your local Krishi Gyan Kendra (Agriculture Knowledge Centre) immediately."
     },
     "Potato___healthy": {
         "condition": "Healthy",
@@ -174,12 +181,14 @@ ADVISORY_LOOKUP = {
     "Tomato___Early_blight": {
         "condition": "Early Blight",
         "severity": "Moderate",
-        "advice": "Look for dark spots with rings on lower leaves. Remove affected leaves and avoid wetting leaves when watering."
+        "advice": "Look for dark spots with rings on lower leaves. Remove affected leaves and avoid wetting leaves when watering.",
+        "local_note": "Common in Nepal's Terai and mid-hill tomato farms, especially after monsoon rains. Stake plants to keep leaves off the soil."
     },
     "Tomato___Late_blight": {
         "condition": "Late Blight",
-        "severity": "Severe",
-        "advice": "Dark, water-soaked spots that spread quickly in wet weather. Remove infected plants right away to protect the rest of your field."
+        "severity": "Critical",
+        "advice": "Dark, water-soaked spots that spread quickly in wet weather. Remove infected plants right away to protect the rest of your field.",
+        "local_note": "High risk in Nepal from July to September. Contact your local Krishi Gyan Kendra immediately — this disease can wipe out an entire field within days."
     },
     "Tomato___Leaf_Mold": {
         "condition": "Leaf Mold",
@@ -203,7 +212,7 @@ ADVISORY_LOOKUP = {
     },
     "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
         "condition": "Tomato Yellow Leaf Curl Virus",
-        "severity": "Severe",
+        "severity": "Critical",
         "advice": "Leaves curl upward and turn yellow, plant growth stunted. Spread by whiteflies — control whitefly populations and remove infected plants to prevent further spread."
     },
     "Tomato___Tomato_mosaic_virus": {
@@ -229,20 +238,31 @@ def get_advisory(predicted_class):
 
     Returns:
         dict with keys: condition, severity, advice
+        severity is one of: None / Moderate / High / Critical
     """
     return ADVISORY_LOOKUP.get(predicted_class, {
-        "condition": predicted_class.replace("___", " - ").replace("_", " "),
+        "condition": predicted_class.replace("___", " - ").replace("_", " ").strip(),
         "severity": "Unknown",
         "advice": "Disease detected, but detailed advice isn't available yet for this specific condition. Please consult a local agricultural extension officer for guidance."
     })
 
 
 if __name__ == "__main__":
+    # Verify every CLASS_NAMES entry has a corresponding advisory entry
+    from classify import CLASS_NAMES
+    missing = [cls for cls in CLASS_NAMES if cls not in ADVISORY_LOOKUP]
+    if missing:
+        print(f"WARNING: {len(missing)} class(es) missing from ADVISORY_LOOKUP:")
+        for cls in missing:
+            print(f"  - {cls}")
+    else:
+        print(f"Coverage check passed: all {len(CLASS_NAMES)} classes are covered.\n")
+
     # Quick manual test
     test_classes = ["Apple___healthy", "Potato___Late_blight", "Tomato___Tomato_mosaic_virus"]
     for cls in test_classes:
         result = get_advisory(cls)
-        print(f"\nClass: {cls}")
+        print(f"Class: {cls}")
         print(f"Condition: {result['condition']}")
         print(f"Severity: {result['severity']}")
-        print(f"Advice: {result['advice']}")
+        print(f"Advice: {result['advice']}\n")
