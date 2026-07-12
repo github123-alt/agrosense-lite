@@ -1,14 +1,3 @@
-"""
-advisory.py
-
-Plain-language advisory lookup for AgroSense Lite.
-Takes a predicted disease class (as output by classify.py) and returns
-farmer-friendly guidance: condition name, severity, and recommended action.
-
-No external API required — fully offline, matching AgroSense's
-low-connectivity design goal.
-"""
-
 ADVISORY_LOOKUP = {
     # --- Apple ---
     "Apple___Apple_scab": {

@@ -1,3 +1,4 @@
+import sys
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
@@ -69,9 +70,12 @@ def classify_leaf(image_path):
     }
 
 if __name__ == "__main__":
-    result = classify_leaf("test_leaf.jpg")
+    image_path = sys.argv[1] if len(sys.argv) > 1 else "test_leaf.jpg"
+
+    result = classify_leaf(image_path)
     advisory = get_advisory(result["disease"])
 
+    print(f"Image: {image_path}")
     print(f"Predicted: {result['disease']}")
     print(f"Confidence: {result['confidence']:.2%}")
     print(f"Condition: {advisory['condition']}")
