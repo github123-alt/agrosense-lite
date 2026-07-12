@@ -84,18 +84,18 @@ def generate_advice(condition: str, severity: str, static_advice: str, local_not
             add_generation_prompt=True,
             return_tensors="pt",
         )
+        input_ids = inputs if isinstance(inputs, torch.Tensor) else inputs["input_ids"]
 
         with torch.no_grad():
             output_ids = _model.generate(
-                inputs,
+                input_ids,
                 max_new_tokens=120,
                 do_sample=False,          # deterministic — consistent advice
-                temperature=1.0,
                 pad_token_id=_tokenizer.eos_token_id,
             )
 
         # Decode only the newly generated tokens
-        new_tokens = output_ids[0][inputs.shape[-1]:]
+        new_tokens = output_ids[0][input_ids.shape[-1]:]
         advice = _tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
         return advice if advice else static_advice
 

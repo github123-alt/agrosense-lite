@@ -125,9 +125,18 @@ if __name__ == "__main__":
     runner_up = results[1] if top["confidence"] < 0.75 and len(results) > 1 else None
 
     if use_json:
+        advisory_out = {
+            "condition": advisory["condition"],
+            "severity": advisory["severity"],
+            "advice": advisory["advice"],
+        }
+        if "local_note" in advisory:
+            advisory_out["local_note"] = advisory["local_note"]
+        if "advice_source" in advisory:
+            advisory_out["advice_source"] = advisory["advice_source"]
         output = {
             "prediction": top,
-            "advisory": advisory,
+            "advisory": advisory_out,
             "low_confidence": low_confidence,
         }
         if runner_up:
